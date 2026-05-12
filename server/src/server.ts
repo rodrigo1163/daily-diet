@@ -1,14 +1,12 @@
 import { fastify } from "fastify";
 import { env } from "@/env";
-import { knex } from "./db/connection";
+import { createUser, listUsers } from "./routes/users";
 
 const app = fastify();
 
-app.get("/health", async (req, res) => {
-  const test = await knex("sqlite_schema").select("*")
-  return { test: JSON.stringify(test) };
-});
+app.register(createUser);
+app.register(listUsers);
 
 app.listen({ port: env.PORT }, () => {
   console.log(`Server is running on port ${env.PORT}`);
-})
+});
