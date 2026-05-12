@@ -5,9 +5,7 @@
   "main": "index.js",
   "scripts": {
     "dev": "tsx watch --env-file=.env src/server.ts",
-    "knex": "node --no-warnings --import tsx --env-file=.env ./node_modules/knex/bin/cli.js",
-    "knex:migrate": "knex migrate:latest",
-    "knex:rollback": "knex migrate:rollback"
+    "knex": "node --no-warnings --import tsx --env-file=.env ./node_modules/knex/bin/cli.js"
   },
   "keywords": [],
   "author": "",
