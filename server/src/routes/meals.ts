@@ -58,13 +58,13 @@ export async function updateMeal(app: FastifyInstance) {
 
 export async function listMeals(app: FastifyInstance) {
   app.get("/meals", { preHandler: [checkSessionIdExists] }, async (request, reply) => {
-    const user_id = "123";
+    const user_id = request.user?.id;
 
     const meals = await knex("meals").where("user_id", user_id).select("*");
 
-    return {
+    return reply.status(200).send({
       meals,
-    };
+    });
   });
 }
 
@@ -76,7 +76,7 @@ export async function getMeal(app: FastifyInstance) {
 
     const { id } = mealSchema.parse(request.params);
 
-    const meal = await knex("meals").where("id", id).select("*");
+    const meal = await knex("meals").where("id", id).first();
 
     return {
       meal,
