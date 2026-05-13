@@ -21,7 +21,8 @@ export async function createMeal(app: FastifyInstance) {
       id: randomUUID(),
       name,
       description,
-      meal_date,
+      meal_datetime,
+      is_diet,
       user_id: request.user?.id
     });
 

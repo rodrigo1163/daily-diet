@@ -3,15 +3,13 @@ import type { FastifyInstance } from "fastify";
 import z from "zod";
 import { randomUUID } from 'node:crypto'
 
-const userSchema = z.object({
-  name: z.string().max(80),
-  email: z.email()
-})
-
 export async function createUser(app: FastifyInstance) {
   app.post("/user", async (request, reply) => {
-    console.log("cheguei aqui")
-    const { name, email } = userSchema.parse(request.body)
+    const createUserBodySchema = z.object({
+      name: z.string(),
+      email: z.email(),
+    })
+
     let sessionId = request.cookies.sessionId
 
     if (!sessionId) {
@@ -23,19 +21,20 @@ export async function createUser(app: FastifyInstance) {
       })
     }
 
-    const userExist = await knex('users')
-      .where('email', email)
-      .orWhere('session_id', sessionId)
-      .select('id')
+    const { name, email } = createUserBodySchema.parse(request.body)
 
-    if (userExist.length === 0) {
-      await knex('users').insert({
-        id: randomUUID(),
-        name,
-        email,
-        session_id: sessionId,
-      })
+    const userByEmail = await knex('users').where({ email }).first()
+
+    if (userByEmail) {
+      return reply.status(400).send({ message: 'User already exists' })
     }
+
+    await knex('users').insert({
+      id: randomUUID(),
+      name,
+      email,
+      session_id: sessionId,
+    })
 
     return reply.status(201).send()
   });
@@ -44,7 +43,6 @@ export async function createUser(app: FastifyInstance) {
 export async function listUsers(app: FastifyInstance) {
   app.get("/users", async () => {
     const users = await knex('users')
-
     return {
       users
     }
